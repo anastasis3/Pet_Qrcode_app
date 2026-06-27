@@ -38,3 +38,7 @@ Use reusable components from the Design System.
 
 Create @Preview for every screen.
 # Pet_Qrcode_app
+
+
+PROMT FOR PLAN
+Analyze all images inside the /images folder. Create a detailed implementation plan listing every screen, every reusable component, navigation flow, data models, and project tasks. Do not write any code yet
