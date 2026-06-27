@@ -50,7 +50,7 @@ import com.petfinder.qr.components.TopBarIconAction
 
 @Composable
 fun PublicPetProfileScreen(
-    pet: PetUiModel = SampleData.luna.copy(name = "Rex", ageText = "4 Years"),
+    pet: PetUiModel = SampleData.rex,
     onCallOwner: () -> Unit = {},
     onEmailOwner: () -> Unit = {},
     onSendLocation: () -> Unit = {},

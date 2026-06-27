@@ -25,6 +25,7 @@ import com.petfinder.qr.components.SectionTitle
 import com.petfinder.qr.components.StatCard
 import com.petfinder.qr.components.TopBar
 import com.petfinder.qr.components.TopBarAccountAction
+import com.petfinder.qr.components.TopBarIconAction
 import com.petfinder.qr.components.VGap
 import com.petfinder.qr.model.PetUiModel
 import com.petfinder.qr.preview.SampleData
@@ -42,12 +43,22 @@ fun HomeScreen(
     onViewAll: () -> Unit = {},
     onViewProfile: (PetUiModel) -> Unit = {},
     onAddPet: () -> Unit = {},
+    onScan: () -> Unit = {},
     onLogout: () -> Unit = {},
     onNavigate: (BottomNavDestination) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
-            TopBar(actions = { TopBarAccountAction(onClick = onLogout) })
+            TopBar(
+                actions = {
+                    TopBarIconAction(
+                        icon = AppIcons.QrScanner,
+                        contentDescription = "Scan QR code",
+                        onClick = onScan,
+                    )
+                    TopBarAccountAction(onClick = onLogout)
+                },
+            )
         },
         bottomBar = {
             BottomNavigation(

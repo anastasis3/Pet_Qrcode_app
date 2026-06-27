@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.petfinder.qr.components.BottomNavDestination
 import com.petfinder.qr.components.BottomNavigation
-import com.petfinder.qr.components.FakeQrCode
+import com.petfinder.qr.components.QrCodeImage
 import com.petfinder.qr.components.PrimaryButton
 import com.petfinder.qr.components.SecondaryButton
 import com.petfinder.qr.components.TopBar
@@ -43,6 +43,7 @@ import com.petfinder.qr.theme.softShadow
 
 @Composable
 fun QrCodeScreen(
+    qrContent: String = "https://petfinder.app/pet/sample",
     onDownload: () -> Unit = {},
     onShare: () -> Unit = {},
     onPrint: () -> Unit = {},
@@ -105,7 +106,7 @@ fun QrCodeScreen(
                             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                             .padding(Spacing.md),
                     ) {
-                        FakeQrCode(size = Dimensions.qrCodeSize)
+                        QrCodeImage(content = qrContent, size = Dimensions.qrCodeSize)
                     }
                 }
 

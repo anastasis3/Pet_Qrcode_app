@@ -58,6 +58,15 @@ object SampleData {
 
     val buddyProfile = luna.copy(name = "Buddy")
 
+    /** Fallback shown on the public recovery profile when a scanned id isn't local. */
+    val rex = luna.copy(
+        name = "Rex",
+        ageText = "4 Years",
+        status = PetStatus.LOST,
+        description = "I am very friendly and love treats! I have a microchip, but my family " +
+            "misses me a lot. I might be a little scared, so please approach me slowly.",
+    )
+
     val lostPets: List<LostPetUiModel> = listOf(
         LostPetUiModel("1", "Luna", "Austin, TX", "Lost since Oct 12, 2023", DOG_IMAGE),
         LostPetUiModel("2", "Oliver", "Seattle, WA", "Lost since Oct 14, 2023", CAT_IMAGE),

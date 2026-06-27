@@ -42,6 +42,7 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Print
 import androidx.compose.material.icons.outlined.QrCode2
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Share
@@ -78,6 +79,7 @@ object AppIcons {
 
     val QrCode: ImageVector = Icons.Outlined.QrCode2
     val QrCodeFilled: ImageVector = Icons.Filled.QrCode2
+    val QrScanner: ImageVector = Icons.Outlined.QrCodeScanner
     val Edit: ImageVector = Icons.Outlined.Edit
     val Delete: ImageVector = Icons.Outlined.Delete
     val Save: ImageVector = Icons.Outlined.Save

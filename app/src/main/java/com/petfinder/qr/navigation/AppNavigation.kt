@@ -20,6 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.petfinder.qr.components.BottomNavDestination
+import com.petfinder.qr.preview.SampleData
+import com.petfinder.qr.qr.QrCodeGenerator
 import com.petfinder.qr.screens.addpet.AddPetScreen
 import com.petfinder.qr.screens.home.HomeScreen
 import com.petfinder.qr.screens.login.LoginScreen
@@ -29,6 +31,7 @@ import com.petfinder.qr.screens.publicprofile.PublicPetProfileScreen
 import com.petfinder.qr.screens.qrcode.QrCodeScreen
 import com.petfinder.qr.screens.register.RegisterScreen
 import com.petfinder.qr.screens.scanhistory.ScanHistoryScreen
+import com.petfinder.qr.screens.scanner.QrScannerScreen
 import com.petfinder.qr.screens.splash.SplashScreen
 import com.petfinder.qr.viewmodel.addpet.AddEditPetViewModel
 import com.petfinder.qr.viewmodel.auth.AuthViewModel
@@ -132,6 +135,7 @@ fun AppNavigation() {
                 onViewProfile = { navController.navigate(Screen.PetProfile.createRoute(it.id)) },
                 onAddPet = { navController.navigate(Screen.AddPet.route) },
                 onViewAll = { navController.navigate(Screen.LostPets.route) },
+                onScan = { navController.navigate(Screen.QrScanner.route) },
                 onLogout = {
                     authViewModel.logout()
                     navController.navigate(Screen.Login.route) {
@@ -211,8 +215,12 @@ fun AppNavigation() {
             }
         }
 
-        composable(Screen.QrCode.route) {
-            QrCodeScreen(onNavigate = navController::navigateToTab)
+        composable(Screen.QrCode.route) { backStackEntry ->
+            val petId = backStackEntry.arguments?.getString("petId").orEmpty()
+            QrCodeScreen(
+                qrContent = QrCodeGenerator.contentFor(petId),
+                onNavigate = navController::navigateToTab,
+            )
         }
 
         composable(Screen.LostPets.route) {
@@ -239,11 +247,24 @@ fun AppNavigation() {
             )
         }
 
+        // ── QR scanner (CameraX) ────────────────────────────────────────────
+        composable(Screen.QrScanner.route) {
+            QrScannerScreen(
+                onBack = { navController.popBackStack() },
+                onQrScanned = { petId ->
+                    navController.navigate(Screen.PublicPetProfile.createRoute(petId)) {
+                        popUpTo(Screen.QrScanner.route) { inclusive = true }
+                    }
+                },
+            )
+        }
+
         // ── Public (no bottom navigation — reached by scanning a tag) ────────
         composable(Screen.PublicPetProfile.route) {
             val viewModel: PublicPetProfileViewModel = hiltViewModel()
             val pet by viewModel.pet.collectAsStateWithLifecycle()
-            pet?.let { PublicPetProfileScreen(pet = it, onShare = {}) }
+            // Fake local data fallback when the scanned id isn't in the local DB.
+            PublicPetProfileScreen(pet = pet ?: SampleData.rex, onShare = {})
         }
     }
 }
