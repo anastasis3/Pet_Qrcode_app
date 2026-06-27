@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,13 +15,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,6 +38,7 @@ import coil.compose.AsyncImage
 import com.petfinder.qr.components.BottomNavDestination
 import com.petfinder.qr.components.BottomNavigation
 import com.petfinder.qr.components.ContactInfoRow
+import com.petfinder.qr.components.LostBadge
 import com.petfinder.qr.components.MapPreview
 import com.petfinder.qr.components.PrimaryButton
 import com.petfinder.qr.components.SafeBadge
@@ -45,6 +49,7 @@ import com.petfinder.qr.components.ToggleOption
 import com.petfinder.qr.components.TopBar
 import com.petfinder.qr.components.TopBarIconAction
 import com.petfinder.qr.components.VGap
+import com.petfinder.qr.model.PetStatus
 import com.petfinder.qr.model.PetUiModel
 import com.petfinder.qr.preview.SampleData
 import com.petfinder.qr.theme.AppIcons
@@ -64,19 +69,44 @@ fun PetProfileScreen(
     onViewQr: () -> Unit = {},
     onEditInfo: () -> Unit = {},
     onViewScanHistory: () -> Unit = {},
+    onStatusChange: (PetStatus) -> Unit = {},
+    onDelete: () -> Unit = {},
     onNavigate: (BottomNavDestination) -> Unit = {},
 ) {
-    var statusIndex by remember { mutableIntStateOf(0) }
+    var menuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopBar(
                 actions = {
-                    TopBarIconAction(
-                        icon = AppIcons.MoreVert,
-                        contentDescription = "More options",
-                        onClick = {},
-                    )
+                    Box {
+                        TopBarIconAction(
+                            icon = AppIcons.MoreVert,
+                            contentDescription = "More options",
+                            onClick = { menuExpanded = true },
+                        )
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Edit") },
+                                onClick = {
+                                    menuExpanded = false
+                                    onEditInfo()
+                                },
+                                leadingIcon = { Icon(AppIcons.Edit, contentDescription = null) },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Delete") },
+                                onClick = {
+                                    menuExpanded = false
+                                    onDelete()
+                                },
+                                leadingIcon = { Icon(AppIcons.Delete, contentDescription = null) },
+                            )
+                        }
+                    }
                 },
             )
         },
@@ -119,7 +149,10 @@ fun PetProfileScreen(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                SafeBadge(label = "Safe", showIcon = false)
+                when (pet.status) {
+                    PetStatus.SAFE -> SafeBadge(label = "Safe", showIcon = false)
+                    PetStatus.LOST -> LostBadge(label = "Lost", icon = AppIcons.Warning)
+                }
             }
             VGap(Spacing.xxs)
             Text(
@@ -142,8 +175,8 @@ fun PetProfileScreen(
                         ToggleOption("Safe", AppIcons.Safe),
                         ToggleOption("Lost", AppIcons.Lost),
                     ),
-                    selectedIndex = statusIndex,
-                    onSelect = { statusIndex = it },
+                    selectedIndex = if (pet.status == PetStatus.LOST) 1 else 0,
+                    onSelect = { onStatusChange(if (it == 1) PetStatus.LOST else PetStatus.SAFE) },
                     trackColor = androidx.compose.ui.graphics.Color.Transparent,
                 )
             }

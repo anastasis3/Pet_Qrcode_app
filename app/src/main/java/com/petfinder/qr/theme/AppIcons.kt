@@ -23,6 +23,7 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ContactEmergency
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
@@ -78,6 +79,7 @@ object AppIcons {
     val QrCode: ImageVector = Icons.Outlined.QrCode2
     val QrCodeFilled: ImageVector = Icons.Filled.QrCode2
     val Edit: ImageVector = Icons.Outlined.Edit
+    val Delete: ImageVector = Icons.Outlined.Delete
     val Save: ImageVector = Icons.Outlined.Save
     val Download: ImageVector = Icons.Outlined.Download
     val Print: ImageVector = Icons.Outlined.Print

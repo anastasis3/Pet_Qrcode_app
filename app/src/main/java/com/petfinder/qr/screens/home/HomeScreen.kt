@@ -37,6 +37,8 @@ import com.petfinder.qr.theme.StatCardPurple
 @Composable
 fun HomeScreen(
     pets: List<PetUiModel> = SampleData.myPets,
+    safeText: String = "2/2",
+    scanCountText: String = "12",
     onViewAll: () -> Unit = {},
     onViewProfile: (PetUiModel) -> Unit = {},
     onAddPet: () -> Unit = {},
@@ -80,7 +82,7 @@ fun HomeScreen(
                     StatCard(
                         icon = AppIcons.Shield,
                         label = "All Safe",
-                        value = "2/2",
+                        value = safeText,
                         containerColor = StatCardBlue,
                         iconTint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f),
@@ -88,7 +90,7 @@ fun HomeScreen(
                     StatCard(
                         icon = AppIcons.QrCode,
                         label = "QR Scans",
-                        value = "12",
+                        value = scanCountText,
                         containerColor = StatCardPurple,
                         iconTint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.weight(1f),

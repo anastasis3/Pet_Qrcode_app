@@ -3,6 +3,9 @@ package com.petfinder.qr.di
 import android.content.Context
 import androidx.room.Room
 import com.petfinder.qr.database.PetFinderDatabase
+import com.petfinder.qr.database.dao.PetDao
+import com.petfinder.qr.database.dao.ScanHistoryDao
+import com.petfinder.qr.database.dao.UserDao
 import com.petfinder.qr.network.PetFinderApiService
 import com.petfinder.qr.network.RetrofitProvider
 import dagger.Module
@@ -58,4 +61,14 @@ object AppModule {
         ).fallbackToDestructiveMigration()
             .build()
     }
+
+    @Provides
+    fun providePetDao(database: PetFinderDatabase): PetDao = database.petDao()
+
+    @Provides
+    fun provideUserDao(database: PetFinderDatabase): UserDao = database.userDao()
+
+    @Provides
+    fun provideScanHistoryDao(database: PetFinderDatabase): ScanHistoryDao =
+        database.scanHistoryDao()
 }

@@ -33,6 +33,7 @@ import com.petfinder.qr.components.ToggleOption
 import com.petfinder.qr.components.TopBar
 import com.petfinder.qr.components.TopBarAccountAction
 import com.petfinder.qr.components.VGap
+import com.petfinder.qr.model.PetFormData
 import com.petfinder.qr.theme.AppIcons
 import com.petfinder.qr.theme.ComponentShapes
 import com.petfinder.qr.theme.PetFinderTheme
@@ -40,16 +41,22 @@ import com.petfinder.qr.theme.Spacing
 
 @Composable
 fun AddPetScreen(
-    onSave: () -> Unit = {},
+    initial: PetFormData = PetFormData(),
+    title: String = "Register Your Pet",
+    onSave: (PetFormData) -> Unit = {},
     onNavigate: (BottomNavDestination) -> Unit = {},
 ) {
-    var name by remember { mutableStateOf("") }
-    var breed by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
-    var species by remember { mutableIntStateOf(0) }
+    // Field state is re-seeded whenever [initial] arrives (e.g. an edit load completes).
+    var name by remember(initial) { mutableStateOf(initial.name) }
+    var breed by remember(initial) { mutableStateOf(initial.breed) }
+    var description by remember(initial) { mutableStateOf(initial.description) }
+    var phone by remember(initial) { mutableStateOf(initial.phone) }
+    var email by remember(initial) { mutableStateOf(initial.email) }
+    var city by remember(initial) { mutableStateOf(initial.city) }
+    var age by remember(initial) { mutableStateOf(initial.age) }
+    var species by remember(initial) { mutableIntStateOf(if (initial.species == "Cat") 1 else 0) }
+
+    val ageOptions = listOf("Puppy / Kitten", "Young", "Adult", "Senior")
 
     Scaffold(
         topBar = {
@@ -71,7 +78,7 @@ fun AddPetScreen(
                 .padding(horizontal = Spacing.containerPadding),
         ) {
             Text(
-                text = "Register Your Pet",
+                text = title,
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
@@ -126,8 +133,12 @@ fun AddPetScreen(
 
             VGap(Spacing.lg)
             DropdownField(
-                value = "Puppy / Kitten",
+                value = age,
                 label = "Age",
+                onClick = {
+                    val next = (ageOptions.indexOf(age).coerceAtLeast(0) + 1) % ageOptions.size
+                    age = ageOptions[next]
+                },
             )
 
             VGap(Spacing.lg)
@@ -185,7 +196,21 @@ fun AddPetScreen(
             VGap(Spacing.xl)
             PrimaryButton(
                 text = "Save Pet & Generate QR",
-                onClick = onSave,
+                onClick = {
+                    onSave(
+                        PetFormData(
+                            name = name,
+                            species = if (species == 1) "Cat" else "Dog",
+                            breed = breed,
+                            age = age,
+                            description = description,
+                            phone = phone,
+                            email = email,
+                            city = city,
+                            imageUrl = initial.imageUrl,
+                        ),
+                    )
+                },
                 icon = AppIcons.Save,
             )
 

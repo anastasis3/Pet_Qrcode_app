@@ -7,6 +7,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,6 +26,12 @@ import com.petfinder.qr.screens.qrcode.QrCodeScreen
 import com.petfinder.qr.screens.register.RegisterScreen
 import com.petfinder.qr.screens.scanhistory.ScanHistoryScreen
 import com.petfinder.qr.screens.splash.SplashScreen
+import com.petfinder.qr.viewmodel.addpet.AddEditPetViewModel
+import com.petfinder.qr.viewmodel.home.HomeViewModel
+import com.petfinder.qr.viewmodel.lostpets.LostPetsViewModel
+import com.petfinder.qr.viewmodel.petprofile.PetProfileViewModel
+import com.petfinder.qr.viewmodel.publicprofile.PublicPetProfileViewModel
+import com.petfinder.qr.viewmodel.scanhistory.ScanHistoryViewModel
 
 private const val ANIM_MS = 350
 
@@ -70,7 +79,7 @@ fun AppNavigation() {
             )
         }
 
-        // ── Auth ────────────────────────────────────────────────────────────
+        // ── Auth (no bottom navigation) ─────────────────────────────────────
         composable(
             route = Screen.Login.route,
             enterTransition = { fadeIn(tween(500)) },
@@ -90,7 +99,12 @@ fun AppNavigation() {
 
         // ── Authenticated (bottom navigation visible) ───────────────────────
         composable(Screen.Home.route) {
+            val viewModel: HomeViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
             HomeScreen(
+                pets = state.pets,
+                safeText = "${state.safeCount}/${state.totalCount}",
+                scanCountText = state.scanCount.toString(),
                 onViewProfile = { navController.navigate(Screen.PetProfile.createRoute(it.id)) },
                 onAddPet = { navController.navigate(Screen.AddPet.route) },
                 onViewAll = { navController.navigate(Screen.LostPets.route) },
@@ -99,20 +113,48 @@ fun AppNavigation() {
         }
 
         composable(Screen.AddPet.route) {
+            val viewModel: AddEditPetViewModel = hiltViewModel()
+            val initial by viewModel.initialForm.collectAsStateWithLifecycle()
             AddPetScreen(
-                onSave = { navController.navigate(Screen.QrCode.createRoute("1")) },
+                initial = initial,
+                title = "Register Your Pet",
+                onSave = { form ->
+                    viewModel.save(form) {
+                        navController.navigate(Screen.QrCode.createRoute("new"))
+                    }
+                },
+                onNavigate = navController::navigateToTab,
+            )
+        }
+
+        composable(Screen.EditPet.route) {
+            val viewModel: AddEditPetViewModel = hiltViewModel()
+            val initial by viewModel.initialForm.collectAsStateWithLifecycle()
+            AddPetScreen(
+                initial = initial,
+                title = "Edit Pet Details",
+                onSave = { form -> viewModel.save(form) { navController.popBackStack() } },
                 onNavigate = navController::navigateToTab,
             )
         }
 
         composable(Screen.PetProfile.route) {
-            PetProfileScreen(
-                onBack = { navController.popBackStack() },
-                onViewQr = { navController.navigate(Screen.QrCode.createRoute("1")) },
-                onEditInfo = { navController.navigate(Screen.AddPet.route) },
-                onViewScanHistory = { navController.navigate(Screen.ScanHistory.createRoute("1")) },
-                onNavigate = navController::navigateToTab,
-            )
+            val viewModel: PetProfileViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            state.pet?.let { pet ->
+                PetProfileScreen(
+                    pet = pet,
+                    onBack = { navController.popBackStack() },
+                    onViewQr = { navController.navigate(Screen.QrCode.createRoute(pet.id)) },
+                    onEditInfo = { navController.navigate(Screen.EditPet.createRoute(pet.id)) },
+                    onViewScanHistory = {
+                        navController.navigate(Screen.ScanHistory.createRoute(pet.id))
+                    },
+                    onStatusChange = viewModel::setStatus,
+                    onDelete = { viewModel.delete { navController.popBackStack() } },
+                    onNavigate = navController::navigateToTab,
+                )
+            }
         }
 
         composable(Screen.QrCode.route) {
@@ -120,7 +162,13 @@ fun AppNavigation() {
         }
 
         composable(Screen.LostPets.route) {
+            val viewModel: LostPetsViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
             LostPetsScreen(
+                lostPets = state.pets,
+                query = state.query,
+                onQueryChange = viewModel::onQueryChange,
+                resultCount = state.resultCount,
                 onViewDetails = { navController.navigate(Screen.PublicPetProfile.createRoute(it.id)) },
                 onAddPet = { navController.navigate(Screen.AddPet.route) },
                 onNavigate = navController::navigateToTab,
@@ -128,7 +176,10 @@ fun AppNavigation() {
         }
 
         composable(Screen.ScanHistory.route) {
+            val viewModel: ScanHistoryViewModel = hiltViewModel()
+            val events by viewModel.events.collectAsStateWithLifecycle()
             ScanHistoryScreen(
+                events = events,
                 onBack = { navController.popBackStack() },
                 onNavigate = navController::navigateToTab,
             )
@@ -136,7 +187,9 @@ fun AppNavigation() {
 
         // ── Public (no bottom navigation — reached by scanning a tag) ────────
         composable(Screen.PublicPetProfile.route) {
-            PublicPetProfileScreen(onShare = {})
+            val viewModel: PublicPetProfileViewModel = hiltViewModel()
+            val pet by viewModel.pet.collectAsStateWithLifecycle()
+            pet?.let { PublicPetProfileScreen(pet = it, onShare = {}) }
         }
     }
 }

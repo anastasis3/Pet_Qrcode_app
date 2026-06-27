@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,12 +40,14 @@ import com.petfinder.qr.theme.Spacing
 @Composable
 fun LostPetsScreen(
     lostPets: List<LostPetUiModel> = SampleData.lostPets,
+    query: String = "",
+    onQueryChange: (String) -> Unit = {},
+    resultCount: Int = 24,
     onViewDetails: (LostPetUiModel) -> Unit = {},
     onLoadMore: () -> Unit = {},
     onAddPet: () -> Unit = {},
     onNavigate: (BottomNavDestination) -> Unit = {},
 ) {
-    var query by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -77,7 +78,7 @@ fun LostPetsScreen(
                 .padding(horizontal = Spacing.containerPadding),
         ) {
             VGap(Spacing.xs)
-            SearchBar(query = query, onQueryChange = { query = it })
+            SearchBar(query = query, onQueryChange = onQueryChange)
 
             VGap(Spacing.md)
             FilterChipRow(
@@ -99,7 +100,7 @@ fun LostPetsScreen(
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    text = "Showing 24 results",
+                    text = "Showing $resultCount results",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

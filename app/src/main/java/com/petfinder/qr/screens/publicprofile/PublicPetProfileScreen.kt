@@ -142,7 +142,7 @@ fun PublicPetProfileScreen(
                     VGap(Spacing.md)
                     LabeledInfoBox(
                         label = "City",
-                        value = "San Francisco",
+                        value = pet.contact.city,
                         modifier = Modifier.fillMaxWidth(),
                     )
 
@@ -161,9 +161,7 @@ fun PublicPetProfileScreen(
                         )
                         VGap(Spacing.xs)
                         Text(
-                            text = "I am very friendly and love treats! I have a microchip, but " +
-                                "my family misses me a lot. I might be a little scared, so please " +
-                                "approach me slowly. I love belly rubs.",
+                            text = pet.description,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
