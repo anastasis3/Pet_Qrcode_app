@@ -42,11 +42,12 @@ fun HomeScreen(
     onViewAll: () -> Unit = {},
     onViewProfile: (PetUiModel) -> Unit = {},
     onAddPet: () -> Unit = {},
+    onLogout: () -> Unit = {},
     onNavigate: (BottomNavDestination) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
-            TopBar(actions = { TopBarAccountAction(onClick = {}) })
+            TopBar(actions = { TopBarAccountAction(onClick = onLogout) })
         },
         bottomBar = {
             BottomNavigation(

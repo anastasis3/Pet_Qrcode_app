@@ -6,8 +6,12 @@ import com.petfinder.qr.database.PetFinderDatabase
 import com.petfinder.qr.database.dao.PetDao
 import com.petfinder.qr.database.dao.ScanHistoryDao
 import com.petfinder.qr.database.dao.UserDao
+import com.petfinder.qr.network.AuthApiService
+import com.petfinder.qr.network.AuthInterceptor
+import com.petfinder.qr.network.MockAuthInterceptor
 import com.petfinder.qr.network.PetFinderApiService
 import com.petfinder.qr.network.RetrofitProvider
+import com.petfinder.qr.network.TokenAuthenticator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +29,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(
+        mockAuthInterceptor: MockAuthInterceptor,
+        authInterceptor: AuthInterceptor,
+        tokenAuthenticator: TokenAuthenticator,
+    ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -33,7 +41,11 @@ object AppModule {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+            // Mock first so it can short-circuit auth calls before the network.
+            .addInterceptor(mockAuthInterceptor)
+            .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
+            .authenticator(tokenAuthenticator)
             .build()
     }
 
@@ -47,6 +59,12 @@ object AppModule {
     @Singleton
     fun providePetFinderApiService(retrofit: Retrofit): PetFinderApiService {
         return retrofit.create(PetFinderApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
+        return retrofit.create(AuthApiService::class.java)
     }
 
     @Provides

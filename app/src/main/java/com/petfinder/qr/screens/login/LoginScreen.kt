@@ -43,11 +43,13 @@ import com.petfinder.qr.theme.softShadow
 
 @Composable
 fun LoginScreen(
-    onSignIn: () -> Unit = {},
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    onSignIn: (email: String, password: String) -> Unit = { _, _ -> },
     onForgotPassword: () -> Unit = {},
     onCreateAccount: () -> Unit = {},
 ) {
-    var email by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("owner@example.com") }
     var password by remember { mutableStateOf("password") }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
@@ -135,8 +137,21 @@ fun LoginScreen(
                         .clickable(onClick = onForgotPassword)
                         .padding(Spacing.xxs),
                 )
+                if (errorMessage != null) {
+                    VGap(Spacing.sm)
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 VGap(Spacing.md)
-                PrimaryButton(text = "Sign In", onClick = onSignIn)
+                PrimaryButton(
+                    text = "Sign In",
+                    onClick = { onSignIn(email, password) },
+                    isLoading = isLoading,
+                    enabled = !isLoading,
+                )
             }
 
             VGap(Spacing.xl)

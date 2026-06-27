@@ -100,6 +100,9 @@ dependencies {
     // DataStore (for future auth token persistence)
     implementation(libs.androidx.datastore.preferences)
 
+    // Encrypted storage for JWT tokens
+    implementation(libs.androidx.security.crypto)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

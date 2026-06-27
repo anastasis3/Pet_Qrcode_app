@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,6 +28,7 @@ import com.petfinder.qr.screens.register.RegisterScreen
 import com.petfinder.qr.screens.scanhistory.ScanHistoryScreen
 import com.petfinder.qr.screens.splash.SplashScreen
 import com.petfinder.qr.viewmodel.addpet.AddEditPetViewModel
+import com.petfinder.qr.viewmodel.auth.AuthViewModel
 import com.petfinder.qr.viewmodel.home.HomeViewModel
 import com.petfinder.qr.viewmodel.lostpets.LostPetsViewModel
 import com.petfinder.qr.viewmodel.petprofile.PetProfileViewModel
@@ -70,9 +72,13 @@ fun AppNavigation() {
             route = Screen.Splash.route,
             exitTransition = { fadeOut(tween(500)) },
         ) {
+            val authViewModel: AuthViewModel = hiltViewModel()
             SplashScreen(
                 onTimeout = {
-                    navController.navigate(Screen.Login.route) {
+                    // A persisted JWT means we can skip straight to Home.
+                    val destination =
+                        if (authViewModel.isLoggedIn()) Screen.Home.route else Screen.Login.route
+                    navController.navigate(destination) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 },
@@ -84,15 +90,29 @@ fun AppNavigation() {
             route = Screen.Login.route,
             enterTransition = { fadeIn(tween(500)) },
         ) {
+            val authViewModel: AuthViewModel = hiltViewModel()
+            val state by authViewModel.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(state.isAuthenticated) {
+                if (state.isAuthenticated) navController.navigateClearingAuth(Screen.Home.route)
+            }
             LoginScreen(
-                onSignIn = { navController.navigateClearingAuth(Screen.Home.route) },
+                isLoading = state.isLoading,
+                errorMessage = state.errorMessage,
+                onSignIn = authViewModel::login,
                 onCreateAccount = { navController.navigate(Screen.Register.route) },
             )
         }
 
         composable(Screen.Register.route) {
+            val authViewModel: AuthViewModel = hiltViewModel()
+            val state by authViewModel.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(state.isAuthenticated) {
+                if (state.isAuthenticated) navController.navigateClearingAuth(Screen.Home.route)
+            }
             RegisterScreen(
-                onCreateAccount = { navController.navigateClearingAuth(Screen.Home.route) },
+                isLoading = state.isLoading,
+                errorMessage = state.errorMessage,
+                onCreateAccount = authViewModel::register,
                 onSignIn = { navController.popBackStack() },
             )
         }
@@ -100,6 +120,7 @@ fun AppNavigation() {
         // ── Authenticated (bottom navigation visible) ───────────────────────
         composable(Screen.Home.route) {
             val viewModel: HomeViewModel = hiltViewModel()
+            val authViewModel: AuthViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             HomeScreen(
                 pets = state.pets,
@@ -108,6 +129,12 @@ fun AppNavigation() {
                 onViewProfile = { navController.navigate(Screen.PetProfile.createRoute(it.id)) },
                 onAddPet = { navController.navigate(Screen.AddPet.route) },
                 onViewAll = { navController.navigate(Screen.LostPets.route) },
+                onLogout = {
+                    authViewModel.logout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
                 onNavigate = navController::navigateToTab,
             )
         }

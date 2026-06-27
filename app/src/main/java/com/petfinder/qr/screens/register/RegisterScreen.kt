@@ -42,7 +42,9 @@ import com.petfinder.qr.theme.softShadow
 
 @Composable
 fun RegisterScreen(
-    onCreateAccount: () -> Unit = {},
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    onCreateAccount: (name: String, email: String, password: String) -> Unit = { _, _, _ -> },
     onSignIn: () -> Unit = {},
 ) {
     var name by remember { mutableStateOf("") }
@@ -145,8 +147,21 @@ fun RegisterScreen(
                     backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 )
+                if (errorMessage != null) {
+                    VGap(Spacing.sm)
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 VGap(Spacing.lg)
-                PrimaryButton(text = "Create Account", onClick = onCreateAccount)
+                PrimaryButton(
+                    text = "Create Account",
+                    onClick = { onCreateAccount(name, email, password) },
+                    isLoading = isLoading,
+                    enabled = !isLoading,
+                )
             }
 
             VGap(Spacing.xl)
