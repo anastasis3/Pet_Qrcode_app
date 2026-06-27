@@ -118,6 +118,7 @@ fun PrimaryButton(
     icon: ImageVector? = null,
     useGradient: Boolean = true,
     fillMaxWidth: Boolean = true,
+    height: Dp = Dimensions.buttonHeightLarge,
 ) {
     val extraColors = petFinderExtraColors()
     val gradient = if (useGradient) {
@@ -130,6 +131,12 @@ fun PrimaryButton(
     } else {
         null
     }
+    // Gradient buttons are light blue → dark text; solid buttons are dark navy → white text.
+    val contentColor = if (useGradient) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onPrimary
+    }
 
     PetFinderButton(
         text = text,
@@ -139,9 +146,9 @@ fun PrimaryButton(
         isLoading = isLoading,
         icon = icon,
         containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        contentColor = contentColor,
         gradient = gradient,
-        height = Dimensions.buttonHeightLarge,
+        height = height,
         fillMaxWidth = fillMaxWidth,
     )
 }

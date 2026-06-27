@@ -52,7 +52,7 @@ enum class BottomNavDestination(
 
 @Composable
 fun BottomNavigation(
-    selectedDestination: BottomNavDestination,
+    selectedDestination: BottomNavDestination?,
     onDestinationSelected: (BottomNavDestination) -> Unit,
     modifier: Modifier = Modifier,
 ) {

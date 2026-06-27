@@ -69,6 +69,7 @@ fun LostBadge(
     modifier: Modifier = Modifier,
     label: String = "LOST",
     showPulseDot: Boolean = true,
+    icon: ImageVector? = null,
 ) {
     Box(
         modifier = modifier
@@ -80,7 +81,15 @@ fun LostBadge(
         androidx.compose.foundation.layout.Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (showPulseDot) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(Dimensions.iconSizeSmall),
+                    tint = MaterialTheme.colorScheme.error,
+                )
+                Box(modifier = Modifier.size(Spacing.xxs))
+            } else if (showPulseDot) {
                 Box(
                     modifier = Modifier
                         .size(Dimensions.statusDotSize)

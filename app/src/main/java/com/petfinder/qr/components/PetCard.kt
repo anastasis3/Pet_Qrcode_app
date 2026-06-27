@@ -80,7 +80,7 @@ fun PetCard(
             ) {
                 when (status) {
                     PetStatus.SAFE -> SafeBadge()
-                    PetStatus.LOST -> LostBadge()
+                    PetStatus.LOST -> LostBadge(label = "Lost", icon = AppIcons.Warning)
                 }
             }
         }
@@ -139,8 +139,7 @@ fun PetCard(
             PrimaryButton(
                 text = actionButtonText,
                 onClick = actionClick,
-                icon = if (status == PetStatus.LOST) AppIcons.ForwardFilled else null,
-                useGradient = status == PetStatus.LOST,
+                useGradient = false,
             )
         }
     }

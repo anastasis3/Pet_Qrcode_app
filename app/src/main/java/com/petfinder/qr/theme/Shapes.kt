@@ -15,6 +15,12 @@ val PetFinderShapes = Shapes(
 )
 
 object ComponentShapes {
+    // Generic radii (mirror PetFinderShapes for use outside MaterialTheme.shapes).
+    val extraSmall: Shape = RoundedCornerShape(8.dp)
+    val small: Shape = RoundedCornerShape(12.dp)
+    val medium: Shape = RoundedCornerShape(16.dp)
+    val large: Shape = RoundedCornerShape(24.dp)
+
     val pill: Shape = RoundedCornerShape(Dimensions.pillRadius)
     val button: Shape = RoundedCornerShape(Dimensions.buttonRadius)
     val card: Shape = RoundedCornerShape(Dimensions.cardRadius)

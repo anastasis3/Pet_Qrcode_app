@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 object AppIcons {
     val Logo: ImageVector = Icons.Outlined.Pets
     val LogoFilled: ImageVector = Icons.Filled.Pets
+    val Pets: ImageVector = Icons.Outlined.Pets
 
     val Home: ImageVector = Icons.Outlined.Home
     val HomeFilled: ImageVector = Icons.Filled.Home

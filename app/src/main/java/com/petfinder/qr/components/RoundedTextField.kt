@@ -40,9 +40,11 @@ fun RoundedTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     useWhiteBackground: Boolean = false,
+    shape: androidx.compose.ui.graphics.Shape = ComponentShapes.input,
+    backgroundColor: androidx.compose.ui.graphics.Color? = null,
 ) {
     val extraColors = petFinderExtraColors()
-    val backgroundColor = if (useWhiteBackground) {
+    val resolvedBackground = backgroundColor ?: if (useWhiteBackground) {
         MaterialTheme.colorScheme.surfaceContainerLowest
     } else {
         extraColors.inputBackground
@@ -107,12 +109,12 @@ fun RoundedTextField(
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
-            shape = ComponentShapes.input,
+            shape = shape,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = backgroundColor,
-                unfocusedContainerColor = backgroundColor,
-                disabledContainerColor = backgroundColor.copy(alpha = 0.6f),
-                errorContainerColor = backgroundColor,
+                focusedContainerColor = resolvedBackground,
+                unfocusedContainerColor = resolvedBackground,
+                disabledContainerColor = resolvedBackground.copy(alpha = 0.6f),
+                errorContainerColor = resolvedBackground,
                 focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                 unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                 disabledBorderColor = androidx.compose.ui.graphics.Color.Transparent,

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Richi/.claude/projects/c--Users-Richi-Desktop-nastiaproject-Pet-Qrcode-app/memory/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Richi\\.claude\\projects\\c--Users-Richi-Desktop-nastiaproject-Pet-Qrcode-app\\memory"
+    ]
+  }
+}

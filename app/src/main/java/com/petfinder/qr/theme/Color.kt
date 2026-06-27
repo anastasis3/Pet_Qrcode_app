@@ -78,3 +78,30 @@ val PrimaryButtonGradientEndAlt = Color(0xFF8FB8E6)
 /** Gradient used on card action buttons in Lost Pets screen. */
 val CardActionGradientStart = Color(0xFFAFCFF5)
 val CardActionGradientEnd = Color(0xFF9DC1E8)
+
+// ── Soft tints (Stitch dashboard, profile & public recovery) ──────────────────
+/** Home dashboard "All Safe" stat card background. */
+val StatCardBlue = Color(0xFFE7EEF7)
+/** Home dashboard "QR Scans" stat card background. */
+val StatCardPurple = Color(0xFFF1ECF8)
+
+/** Public profile soft action buttons. */
+val SoftActionBlue = Color(0xFFBBD4F1)
+val SoftActionPurple = Color(0xFFD9CEF3)
+val SoftActionPeach = Color(0xFFF1CEC0)
+
+/** Contact-info row icon circles. */
+val IconCircleBlue = Color(0xFFC7DBF5)
+val IconCirclePurple = Color(0xFFE6DAF7)
+val IconCirclePeach = Color(0xFFF1D9CE)
+
+/** Map preview placeholder gradient stops. */
+val MapPreviewGreen = Color(0xFFCFE3D8)
+val MapPreviewBlue = Color(0xFFBFD6E4)
+val MapPreviewSand = Color(0xFFEDE4C9)
+
+/** Public profile "About Me" callout background. */
+val AboutMeBg = Color(0xFFF7E7E0)
+
+/** QR code panel inner surface. */
+val QrPanelBg = Color(0xFFEDEDED)
