@@ -2,6 +2,7 @@ package com.petfinder.qr.screens.petprofile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -62,6 +63,7 @@ fun PetProfileScreen(
     onBack: () -> Unit = {},
     onViewQr: () -> Unit = {},
     onEditInfo: () -> Unit = {},
+    onViewScanHistory: () -> Unit = {},
     onNavigate: (BottomNavDestination) -> Unit = {},
 ) {
     var statusIndex by remember { mutableIntStateOf(0) }
@@ -201,7 +203,7 @@ fun PetProfileScreen(
             )
 
             VGap(Spacing.lg)
-            LastScanActivityCard(petName = pet.name)
+            LastScanActivityCard(petName = pet.name, onClick = onViewScanHistory)
 
             VGap(Spacing.xl)
         }
@@ -235,13 +237,14 @@ private fun LastUpdateRow(text: String) {
 }
 
 @Composable
-private fun LastScanActivityCard(petName: String) {
+private fun LastScanActivityCard(petName: String, onClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(ComponentShapes.card)
             .softShadow()
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+            .clickable(onClick = onClick)
             .padding(Spacing.md),
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
