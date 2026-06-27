@@ -25,5 +25,9 @@ data class ScanHistoryEntity(
     val scannedBy: String? = null,
     val note: String? = null,
     val showMap: Boolean = true,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val timestamp: Long,
+    /** False until this scan has been pushed to the backend (future sync). */
+    val synced: Boolean = true,
 )

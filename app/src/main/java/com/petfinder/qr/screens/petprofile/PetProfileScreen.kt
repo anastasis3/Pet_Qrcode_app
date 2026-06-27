@@ -38,8 +38,8 @@ import coil.compose.AsyncImage
 import com.petfinder.qr.components.BottomNavDestination
 import com.petfinder.qr.components.BottomNavigation
 import com.petfinder.qr.components.ContactInfoRow
+import com.petfinder.qr.components.LocationMap
 import com.petfinder.qr.components.LostBadge
-import com.petfinder.qr.components.MapPreview
 import com.petfinder.qr.components.PrimaryButton
 import com.petfinder.qr.components.SafeBadge
 import com.petfinder.qr.components.SecondaryButton
@@ -51,6 +51,7 @@ import com.petfinder.qr.components.TopBarIconAction
 import com.petfinder.qr.components.VGap
 import com.petfinder.qr.model.PetStatus
 import com.petfinder.qr.model.PetUiModel
+import com.petfinder.qr.model.ScanEvent
 import com.petfinder.qr.preview.SampleData
 import com.petfinder.qr.theme.AppIcons
 import com.petfinder.qr.theme.ComponentShapes
@@ -65,6 +66,7 @@ import com.petfinder.qr.theme.softShadow
 @Composable
 fun PetProfileScreen(
     pet: PetUiModel = SampleData.buddyProfile,
+    lastScan: ScanEvent? = SampleData.scanHistory.firstOrNull(),
     onBack: () -> Unit = {},
     onViewQr: () -> Unit = {},
     onEditInfo: () -> Unit = {},
@@ -235,8 +237,10 @@ fun PetProfileScreen(
                 iconTint = MaterialTheme.colorScheme.tertiary,
             )
 
-            VGap(Spacing.lg)
-            LastScanActivityCard(petName = pet.name, onClick = onViewScanHistory)
+            lastScan?.let { scan ->
+                VGap(Spacing.lg)
+                LastScanActivityCard(scan = scan, onClick = onViewScanHistory)
+            }
 
             VGap(Spacing.xl)
         }
@@ -270,7 +274,7 @@ private fun LastUpdateRow(text: String) {
 }
 
 @Composable
-private fun LastScanActivityCard(petName: String, onClick: () -> Unit = {}) {
+private fun LastScanActivityCard(scan: ScanEvent, onClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -289,34 +293,31 @@ private fun LastScanActivityCard(petName: String, onClick: () -> Unit = {}) {
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = "Someone scanned $petName's tag recently",
+                    text = "Tag scanned at ${scan.place}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = Spacing.xxs),
                 )
             }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "2 hours ago",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.End,
-                )
-                Text(
-                    text = "Oct 26, 2:45 PM",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.End,
-                )
-            }
+            Text(
+                text = scan.dateLabel,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.End,
+            )
         }
-        VGap(Spacing.md)
-        MapPreview(
-            height = Dimensions.mapPreviewHeightCompact,
-            chipText = "Dolores Park Area, Mission District",
-            chipIcon = AppIcons.Explore,
-            chipAlignment = Alignment.BottomStart,
-        )
+        if (scan.hasLocation) {
+            VGap(Spacing.md)
+            LocationMap(
+                latitude = scan.latitude!!,
+                longitude = scan.longitude!!,
+                height = Dimensions.mapPreviewHeightCompact,
+                markerTitle = scan.place,
+                chipText = scan.place,
+                chipIcon = AppIcons.Explore,
+                chipAlignment = Alignment.BottomStart,
+            )
+        }
     }
 }
 

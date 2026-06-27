@@ -44,4 +44,8 @@ data class ScanEvent(
     val scannedBy: String? = null,
     val note: String? = null,
     val isActive: Boolean = false,
-)
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+) {
+    val hasLocation: Boolean get() = latitude != null && longitude != null
+}

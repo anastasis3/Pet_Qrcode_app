@@ -30,11 +30,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.petfinder.qr.components.AlertBanner
 import com.petfinder.qr.components.LabeledInfoBox
-import com.petfinder.qr.components.MapPreview
+import com.petfinder.qr.components.LocationMap
 import com.petfinder.qr.components.SafeBadge
 import com.petfinder.qr.components.SoftActionButton
 import com.petfinder.qr.components.VGap
 import com.petfinder.qr.model.PetUiModel
+import com.petfinder.qr.model.ScanEvent
 import com.petfinder.qr.preview.SampleData
 import com.petfinder.qr.theme.AboutMeBg
 import com.petfinder.qr.theme.AppIcons
@@ -51,6 +52,7 @@ import com.petfinder.qr.components.TopBarIconAction
 @Composable
 fun PublicPetProfileScreen(
     pet: PetUiModel = SampleData.rex,
+    lastScan: ScanEvent? = null,
     onCallOwner: () -> Unit = {},
     onEmailOwner: () -> Unit = {},
     onSendLocation: () -> Unit = {},
@@ -212,9 +214,12 @@ fun PublicPetProfileScreen(
             }
 
             VGap(Spacing.md)
-            MapPreview(
+            LocationMap(
+                latitude = lastScan?.latitude ?: 37.7694,
+                longitude = lastScan?.longitude ?: -122.4862,
                 height = 200.dp,
-                chipText = "Scanned near Golden Gate Park",
+                markerTitle = pet.name,
+                chipText = "Scanned near ${lastScan?.place ?: "Golden Gate Park"}",
                 chipAlignment = Alignment.BottomStart,
             )
 

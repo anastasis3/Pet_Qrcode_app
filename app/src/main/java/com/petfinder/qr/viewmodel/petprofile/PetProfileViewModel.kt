@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.petfinder.qr.model.PetStatus
 import com.petfinder.qr.model.PetUiModel
+import com.petfinder.qr.model.ScanEvent
 import com.petfinder.qr.repository.PetRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,6 +36,13 @@ class PetProfileViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = PetProfileUiState(),
             )
+
+    val lastScan: StateFlow<ScanEvent?> =
+        repository.lastScan(petId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null,
+        )
 
     fun setStatus(status: PetStatus) {
         viewModelScope.launch { repository.setStatus(petId, status) }

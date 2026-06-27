@@ -22,6 +22,12 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Supply a real key via gradle.properties / local.properties (MAPS_API_KEY=...)
+        // or environment before shipping. The map renders blank without one, but
+        // markers/architecture work regardless.
+        manifestPlaceholders["MAPS_API_KEY"] =
+            (project.findProperty("MAPS_API_KEY") as? String) ?: "YOUR_MAPS_API_KEY"
     }
 
     buildTypes {
@@ -114,6 +120,10 @@ dependencies {
 
     // ML Kit barcode scanning
     implementation(libs.mlkit.barcode.scanning)
+
+    // Google Maps (Compose)
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
 
     // Testing
     testImplementation(libs.junit)

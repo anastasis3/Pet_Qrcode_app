@@ -11,6 +11,8 @@ import com.petfinder.qr.model.PetFormData
 import com.petfinder.qr.model.PetStatus
 import com.petfinder.qr.model.PetUiModel
 import com.petfinder.qr.model.ScanEvent
+import com.petfinder.qr.model.ScanReport
+import com.petfinder.qr.sync.ScanSyncService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
@@ -27,6 +29,7 @@ class PetRepository @Inject constructor(
     private val petDao: PetDao,
     private val scanHistoryDao: ScanHistoryDao,
     private val userDao: UserDao,
+    private val scanSyncService: ScanSyncService,
 ) {
     val allPets: Flow<List<PetUiModel>> =
         petDao.observeAll().map { list -> list.map { it.toUiModel() } }
@@ -56,6 +59,36 @@ class PetRepository @Inject constructor(
         scanHistoryDao.observeForPet(petId).map { list ->
             list.mapIndexed { index, entity -> entity.toScanEvent(isMostRecent = index == 0) }
         }
+
+    /** The most recent scan for a pet — drives the "last scan location" map. */
+    fun lastScan(petId: String): Flow<ScanEvent?> =
+        scanHistoryDao.observeLatestForPet(petId).map { it?.toScanEvent(isMostRecent = true) }
+
+    /** Records a new scan locally (unsynced) and best-effort reports it upstream. */
+    suspend fun logScan(
+        petId: String,
+        place: String,
+        detail: String,
+        latitude: Double?,
+        longitude: Double?,
+    ) {
+        val timestamp = System.currentTimeMillis()
+        scanHistoryDao.insert(
+            ScanHistoryEntity(
+                petId = petId,
+                place = place,
+                detail = detail,
+                latitude = latitude,
+                longitude = longitude,
+                timestamp = timestamp,
+                synced = false,
+            ),
+        )
+        scanSyncService.reportScan(ScanReport(petId, place, latitude, longitude, timestamp))
+    }
+
+    /** Pushes any locally-recorded scans the backend hasn't seen (no-op offline). */
+    suspend fun syncPendingScans(): Result<Unit> = scanSyncService.syncPendingScans()
 
     suspend fun getForm(id: String): PetFormData? = petDao.getById(id)?.toFormData()
 
@@ -167,6 +200,8 @@ class PetRepository @Inject constructor(
                     scannedBy = "Good Samaritan",
                     note = "Contact shared via private chat",
                     showMap = true,
+                    latitude = 40.7829,
+                    longitude = -73.9654,
                     timestamp = hoursAgo(2),
                 ),
                 ScanHistoryEntity(
@@ -176,6 +211,8 @@ class PetRepository @Inject constructor(
                     scannedBy = null,
                     note = "Scan completed successfully. Your contact details were viewed.",
                     showMap = true,
+                    latitude = 40.7024,
+                    longitude = -73.9967,
                     timestamp = daysAgo(1),
                 ),
                 ScanHistoryEntity(

@@ -87,6 +87,8 @@ object SampleData {
             scannedBy = "Good Samaritan",
             note = "Contact shared via private chat",
             isActive = true,
+            latitude = 40.7829,
+            longitude = -73.9654,
         ),
         ScanEvent(
             id = "2",
@@ -95,6 +97,8 @@ object SampleData {
             timeDetail = "09:12 AM • Pier 6",
             showMap = true,
             note = "Scan completed successfully. Your contact details were viewed.",
+            latitude = 40.7024,
+            longitude = -73.9967,
         ),
         ScanEvent(
             id = "3",

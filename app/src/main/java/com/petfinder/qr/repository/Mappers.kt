@@ -98,5 +98,7 @@ fun ScanHistoryEntity.toScanEvent(isMostRecent: Boolean): ScanEvent {
         scannedBy = scannedBy,
         note = note,
         isActive = isMostRecent,
+        latitude = latitude,
+        longitude = longitude,
     )
 }

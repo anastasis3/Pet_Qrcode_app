@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import com.petfinder.qr.components.BottomNavDestination
 import com.petfinder.qr.components.BottomNavigation
-import com.petfinder.qr.components.MapPreview
+import com.petfinder.qr.components.LocationMap
 import com.petfinder.qr.components.SafeBadge
 import com.petfinder.qr.components.TimelineNode
 import com.petfinder.qr.components.TopBar
@@ -163,11 +163,13 @@ private fun ScanEventCard(event: ScanEvent) {
             }
         }
 
-        if (event.showMap) {
+        if (event.showMap && event.hasLocation) {
             VGap(Spacing.md)
-            MapPreview(
+            LocationMap(
+                latitude = event.latitude!!,
+                longitude = event.longitude!!,
                 height = Dimensions.mapPreviewHeightCompact,
-                showPin = false,
+                markerTitle = event.place,
                 chipText = "VIEW MAP",
                 chipIcon = AppIcons.Location,
                 chipAlignment = Alignment.BottomEnd,

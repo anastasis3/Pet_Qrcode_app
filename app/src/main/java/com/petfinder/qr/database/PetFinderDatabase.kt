@@ -16,7 +16,7 @@ import com.petfinder.qr.database.entity.UserEntity
         PetEntity::class,
         ScanHistoryEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)

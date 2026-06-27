@@ -199,9 +199,11 @@ fun AppNavigation() {
         composable(Screen.PetProfile.route) {
             val viewModel: PetProfileViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsStateWithLifecycle()
+            val lastScan by viewModel.lastScan.collectAsStateWithLifecycle()
             state.pet?.let { pet ->
                 PetProfileScreen(
                     pet = pet,
+                    lastScan = lastScan,
                     onBack = { navController.popBackStack() },
                     onViewQr = { navController.navigate(Screen.QrCode.createRoute(pet.id)) },
                     onEditInfo = { navController.navigate(Screen.EditPet.createRoute(pet.id)) },
@@ -263,8 +265,13 @@ fun AppNavigation() {
         composable(Screen.PublicPetProfile.route) {
             val viewModel: PublicPetProfileViewModel = hiltViewModel()
             val pet by viewModel.pet.collectAsStateWithLifecycle()
+            val lastScan by viewModel.lastScan.collectAsStateWithLifecycle()
             // Fake local data fallback when the scanned id isn't in the local DB.
-            PublicPetProfileScreen(pet = pet ?: SampleData.rex, onShare = {})
+            PublicPetProfileScreen(
+                pet = pet ?: SampleData.rex,
+                lastScan = lastScan,
+                onShare = {},
+            )
         }
     }
 }
