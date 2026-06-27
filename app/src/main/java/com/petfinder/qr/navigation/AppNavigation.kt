@@ -4,6 +4,9 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
@@ -142,9 +145,21 @@ fun AppNavigation() {
         composable(Screen.AddPet.route) {
             val viewModel: AddEditPetViewModel = hiltViewModel()
             val initial by viewModel.initialForm.collectAsStateWithLifecycle()
+            val imageUri by viewModel.imageUri.collectAsStateWithLifecycle()
+            val isProcessingImage by viewModel.isProcessingImage.collectAsStateWithLifecycle()
+            val photoPicker = rememberLauncherForActivityResult(
+                ActivityResultContracts.PickVisualMedia(),
+            ) { uri -> uri?.let(viewModel::onImagePicked) }
             AddPetScreen(
                 initial = initial,
                 title = "Register Your Pet",
+                imageUri = imageUri,
+                isProcessingImage = isProcessingImage,
+                onPickImageClick = {
+                    photoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                    )
+                },
                 onSave = { form ->
                     viewModel.save(form) {
                         navController.navigate(Screen.QrCode.createRoute("new"))
@@ -157,9 +172,21 @@ fun AppNavigation() {
         composable(Screen.EditPet.route) {
             val viewModel: AddEditPetViewModel = hiltViewModel()
             val initial by viewModel.initialForm.collectAsStateWithLifecycle()
+            val imageUri by viewModel.imageUri.collectAsStateWithLifecycle()
+            val isProcessingImage by viewModel.isProcessingImage.collectAsStateWithLifecycle()
+            val photoPicker = rememberLauncherForActivityResult(
+                ActivityResultContracts.PickVisualMedia(),
+            ) { uri -> uri?.let(viewModel::onImagePicked) }
             AddPetScreen(
                 initial = initial,
                 title = "Edit Pet Details",
+                imageUri = imageUri,
+                isProcessingImage = isProcessingImage,
+                onPickImageClick = {
+                    photoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                    )
+                },
                 onSave = { form -> viewModel.save(form) { navController.popBackStack() } },
                 onNavigate = navController::navigateToTab,
             )

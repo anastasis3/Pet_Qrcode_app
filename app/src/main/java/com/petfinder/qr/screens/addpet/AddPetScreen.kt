@@ -43,6 +43,9 @@ import com.petfinder.qr.theme.Spacing
 fun AddPetScreen(
     initial: PetFormData = PetFormData(),
     title: String = "Register Your Pet",
+    imageUri: String? = null,
+    isProcessingImage: Boolean = false,
+    onPickImageClick: () -> Unit = {},
     onSave: (PetFormData) -> Unit = {},
     onNavigate: (BottomNavDestination) -> Unit = {},
 ) {
@@ -96,7 +99,11 @@ fun AddPetScreen(
             )
 
             VGap(Spacing.xl)
-            PhotoUploadBox()
+            PhotoUploadBox(
+                imageUri = imageUri,
+                isProcessing = isProcessingImage,
+                onClick = onPickImageClick,
+            )
 
             VGap(Spacing.lg)
             RoundedTextField(
@@ -207,7 +214,7 @@ fun AddPetScreen(
                             phone = phone,
                             email = email,
                             city = city,
-                            imageUrl = initial.imageUrl,
+                            imageUrl = imageUri,
                         ),
                     )
                 },

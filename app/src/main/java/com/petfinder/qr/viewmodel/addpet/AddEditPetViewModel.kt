@@ -1,9 +1,11 @@
 package com.petfinder.qr.viewmodel.addpet
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.petfinder.qr.model.PetFormData
+import com.petfinder.qr.repository.ImageRepository
 import com.petfinder.qr.repository.PetRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditPetViewModel @Inject constructor(
     private val repository: PetRepository,
+    private val imageRepository: ImageRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -29,11 +32,32 @@ class AddEditPetViewModel @Inject constructor(
     private val _initialForm = MutableStateFlow(PetFormData())
     val initialForm: StateFlow<PetFormData> = _initialForm.asStateFlow()
 
+    /** Currently-displayed photo (local `file://` now, remote URL once R2 lands). */
+    private val _imageUri = MutableStateFlow<String?>(null)
+    val imageUri: StateFlow<String?> = _imageUri.asStateFlow()
+
+    private val _isProcessingImage = MutableStateFlow(false)
+    val isProcessingImage: StateFlow<Boolean> = _isProcessingImage.asStateFlow()
+
     init {
         if (petId != null) {
             viewModelScope.launch {
-                repository.getForm(petId)?.let { _initialForm.value = it }
+                repository.getForm(petId)?.let { form ->
+                    _initialForm.value = form
+                    _imageUri.value = form.imageUrl
+                }
             }
+        }
+    }
+
+    /** Compresses + stores the gallery image, then shows it as the preview. */
+    fun onImagePicked(uri: Uri) {
+        if (_isProcessingImage.value) return
+        viewModelScope.launch {
+            _isProcessingImage.value = true
+            runCatching { imageRepository.processAndStore(uri) }
+                .onSuccess { _imageUri.value = it }
+            _isProcessingImage.value = false
         }
     }
 
