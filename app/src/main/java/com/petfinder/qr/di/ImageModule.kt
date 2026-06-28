@@ -1,22 +1,27 @@
 package com.petfinder.qr.di
 
+import com.petfinder.qr.image.ApiImageUploader
 import com.petfinder.qr.image.ImageUploader
 import com.petfinder.qr.image.LocalImageUploader
-import dagger.Binds
+import com.petfinder.qr.utils.Constants
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 /**
- * Binds the active [ImageUploader]. Swap [LocalImageUploader] for
- * `R2ImageUploader` here once Cloudflare R2 is ready — nothing else changes.
+ * Provides the active [ImageUploader]: backend multipart upload when remote is
+ * enabled, otherwise local-only. Controlled by [Constants.USE_REMOTE_BACKEND].
  */
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ImageModule {
+object ImageModule {
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindImageUploader(impl: LocalImageUploader): ImageUploader
+    fun provideImageUploader(
+        local: LocalImageUploader,
+        api: ApiImageUploader,
+    ): ImageUploader = if (Constants.USE_REMOTE_BACKEND) api else local
 }

@@ -1,6 +1,10 @@
 package com.petfinder.qr.sync
 
+import com.petfinder.qr.database.dao.ScanHistoryDao
 import com.petfinder.qr.model.ScanReport
+import com.petfinder.qr.network.PetApiService
+import com.petfinder.qr.network.dto.LogScanRequest
+import com.petfinder.qr.network.retryIO
 import javax.inject.Inject
 
 /**
@@ -25,18 +29,51 @@ class LocalScanSyncService @Inject constructor() : ScanSyncService {
 }
 
 /**
- * Future Cloudflare/Spring Boot implementation. To enable:
- *  - `reportScan` -> `POST /api/pets/{petId}/scans`, then mark the row synced.
- *  - `syncPendingScans` -> read `ScanHistoryDao.getUnsynced()`, push them, then
- *    `ScanHistoryDao.markSynced(ids)`.
- * Bind this in [com.petfinder.qr.di.SyncModule] instead of [LocalScanSyncService].
+ * Spring Boot implementation: posts scans/locations to the backend and clears the
+ * `synced` flag on success. Active when [com.petfinder.qr.utils.Constants.USE_REMOTE_BACKEND] is on.
  */
 class RemoteScanSyncService @Inject constructor(
-    // e.g. api: PetFinderApiService, scanHistoryDao: ScanHistoryDao
+    private val petApi: PetApiService,
+    private val scanHistoryDao: ScanHistoryDao,
 ) : ScanSyncService {
-    override suspend fun reportScan(report: ScanReport): Result<Unit> =
-        Result.failure(NotImplementedError("Remote scan sync not wired yet"))
 
-    override suspend fun syncPendingScans(): Result<Unit> =
-        Result.failure(NotImplementedError("Remote scan sync not wired yet"))
+    override suspend fun reportScan(report: ScanReport): Result<Unit> = try {
+        retryIO {
+            petApi.logScan(
+                report.petId,
+                LogScanRequest(
+                    place = report.place,
+                    detail = "Tag scan",
+                    latitude = report.latitude,
+                    longitude = report.longitude,
+                    timestamp = report.timestamp,
+                ),
+            )
+        }
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    override suspend fun syncPendingScans(): Result<Unit> = try {
+        val pending = scanHistoryDao.getUnsynced()
+        pending.forEach { scan ->
+            retryIO {
+                petApi.logScan(
+                    scan.petId,
+                    LogScanRequest(
+                        place = scan.place,
+                        detail = scan.detail,
+                        latitude = scan.latitude,
+                        longitude = scan.longitude,
+                        timestamp = scan.timestamp,
+                    ),
+                )
+            }
+        }
+        if (pending.isNotEmpty()) scanHistoryDao.markSynced(pending.map { it.id })
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 }

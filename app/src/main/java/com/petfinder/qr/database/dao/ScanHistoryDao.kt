@@ -2,6 +2,7 @@ package com.petfinder.qr.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.petfinder.qr.database.entity.ScanHistoryEntity
 import kotlinx.coroutines.flow.Flow
@@ -25,9 +26,13 @@ interface ScanHistoryDao {
     @Query("UPDATE scan_history SET synced = 1 WHERE id IN (:ids)")
     suspend fun markSynced(ids: List<Long>)
 
+    /** Clears server-sourced rows for a pet before re-inserting a fresh page (keeps unsynced local scans). */
+    @Query("DELETE FROM scan_history WHERE petId = :petId AND synced = 1")
+    suspend fun deleteSyncedForPet(petId: String)
+
     @Insert
     suspend fun insert(event: ScanHistoryEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(events: List<ScanHistoryEntity>)
 }

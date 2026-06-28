@@ -9,14 +9,19 @@ import com.petfinder.qr.database.dao.UserDao
 import com.petfinder.qr.network.AuthApiService
 import com.petfinder.qr.network.AuthInterceptor
 import com.petfinder.qr.network.MockAuthInterceptor
+import com.petfinder.qr.network.PetApiService
 import com.petfinder.qr.network.PetFinderApiService
 import com.petfinder.qr.network.RetrofitProvider
+import com.petfinder.qr.network.RetryInterceptor
 import com.petfinder.qr.network.TokenAuthenticator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -32,6 +37,7 @@ object AppModule {
     fun provideOkHttpClient(
         mockAuthInterceptor: MockAuthInterceptor,
         authInterceptor: AuthInterceptor,
+        retryInterceptor: RetryInterceptor,
         tokenAuthenticator: TokenAuthenticator,
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
@@ -44,6 +50,7 @@ object AppModule {
             // Mock first so it can short-circuit auth calls before the network.
             .addInterceptor(mockAuthInterceptor)
             .addInterceptor(authInterceptor)
+            .addInterceptor(retryInterceptor)
             .addInterceptor(loggingInterceptor)
             .authenticator(tokenAuthenticator)
             .build()
@@ -66,6 +73,18 @@ object AppModule {
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun providePetApiService(retrofit: Retrofit): PetApiService {
+        return retrofit.create(PetApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @ApplicationScope
+    fun provideApplicationScope(): CoroutineScope =
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Provides
     @Singleton

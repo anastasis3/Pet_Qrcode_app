@@ -8,6 +8,9 @@ import com.petfinder.qr.model.PetFormData
 import com.petfinder.qr.model.PetStatus
 import com.petfinder.qr.model.PetUiModel
 import com.petfinder.qr.model.ScanEvent
+import com.petfinder.qr.network.dto.PetDto
+import com.petfinder.qr.network.dto.PetRequest
+import com.petfinder.qr.network.dto.ScanDto
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -77,7 +80,52 @@ fun PetFormData.toEntity(
     createdAt = createdAt,
 )
 
+// ── Pet: network DTO ↔ entity ─────────────────────────────────────────────────
+
+fun PetDto.toEntity(): PetEntity = PetEntity(
+    id = id,
+    name = name,
+    species = species,
+    breed = breed,
+    ageText = ageText,
+    status = runCatching { PetStatus.valueOf(status.uppercase()) }.getOrDefault(PetStatus.SAFE),
+    imageUrl = imageUrl,
+    description = description,
+    ownerPhone = ownerPhone,
+    ownerEmail = ownerEmail,
+    ownerCity = ownerCity,
+    lastUpdated = lastUpdated,
+    createdAt = createdAt,
+)
+
+fun PetFormData.toRequest(): PetRequest = PetRequest(
+    name = name.ifBlank { "Unnamed" },
+    species = species,
+    breed = breed,
+    ageText = age,
+    description = description,
+    ownerPhone = phone,
+    ownerEmail = email,
+    ownerCity = city,
+    imageUrl = imageUrl,
+)
+
 // ── Scan history ──────────────────────────────────────────────────────────────
+
+fun ScanDto.toEntity(): ScanHistoryEntity = ScanHistoryEntity(
+    id = id,
+    petId = petId,
+    place = place,
+    detail = detail,
+    scannedBy = scannedBy,
+    note = note,
+    showMap = showMap,
+    latitude = latitude,
+    longitude = longitude,
+    timestamp = timestamp,
+    synced = true,
+)
+
 
 fun ScanHistoryEntity.toScanEvent(isMostRecent: Boolean): ScanEvent {
     val zoned = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault())
